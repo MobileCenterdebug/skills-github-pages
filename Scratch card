@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch Card</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { background: #ccc; margin-top: 20px; cursor: pointer; }
+        #message { 
+            display: none; 
+            font-size: 20px; 
+            font-weight: bold; 
+            color: green; 
+            margin-top: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Scratch to Reveal Your Offer!</h2>
+    <canvas id="scratchCard" width="300" height="150"></canvas>
+    <div id="message">🎉 5% Discount on 1st Purchase - Smart Phone! 🎉</div>
+    <script>
+        const canvas = document.getElementById("scratchCard");
+        const ctx = canvas.getContext("2d");
+        const messageDiv = document.getElementById("message");ctx.fillStyle = "gray";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    let isDrawing = false;
+    function clearScratch(x, y) {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fill();
+        checkScratchCompletion();
+    }
+    
+    function checkScratchCompletion() {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let pixels = imageData.data;
+        let totalPixels = pixels.length / 4;
+        let clearedPixels = 0;
+        for (let i = 0; i < pixels.length; i += 4) {
+            if (pixels[i + 3] === 0) clearedPixels++;
+        }
+        if ((clearedPixels / totalPixels) > 0.6) {
+            canvas.style.display = "none";
+            messageDiv.style.display = "block";
+        }
+    }
+    
+    canvas.addEventListener("mousedown", (e) => { isDrawing = true; clearScratch(e.offsetX, e.offsetY); });
+    canvas.addEventListener("mousemove", (e) => { if (isDrawing) clearScratch(e.offsetX, e.offsetY); });
+    canvas.addEventListener("mouseup", () => { isDrawing = false; });
+    canvas.addEventListener("touchstart", (e) => { isDrawing = true; clearScratch(e.touches[0].clientX - canvas.offsetLeft, e.touches[0].clientY - canvas.offsetTop); });
+    canvas.addEventListener("touchmove", (e) => { if (isDrawing) clearScratch(e.touches[0].clientX - canvas.offsetLeft, e.touches[0].clientY - canvas.offsetTop); });
+    canvas.addEventListener("touchend", () => { isDrawing = false; });
+</script>
+
+</body>
+</html>
